@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 180 180">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="0%" r="90%">
+      <stop offset="0%" stop-color="#1b2744"/>
+      <stop offset="72%" stop-color="#0a0e1a"/>
+    </radialGradient>
+    <radialGradient id="bubble" cx="34%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.85"/>
+      <stop offset="45%" stop-color="#ffffff" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#8bd3ff" stop-opacity="0.22"/>
+    </radialGradient>
+  </defs>
+  <rect width="180" height="180" fill="url(#bg)"/>
+  <circle cx="46" cy="34" r="1.6" fill="#ffffff" opacity="0.8"/>
+  <circle cx="130" cy="26" r="1.2" fill="#ffffff" opacity="0.6"/>
+  <circle cx="150" cy="52" r="1.8" fill="#ffffff" opacity="0.7"/>
+  <circle cx="30" cy="60" r="1.1" fill="#ffffff" opacity="0.5"/>
+  <circle cx="146" cy="112" r="30" fill="url(#bubble)" stroke="#b4dcff" stroke-opacity="0.35" stroke-width="2"/>
+  <circle cx="90" cy="98" r="52" fill="url(#bubble)" stroke="#b4dcff" stroke-opacity="0.45" stroke-width="2.5"/>
+  <circle cx="76" cy="80" r="9" fill="#ffffff" opacity="0.55"/>
+</svg>

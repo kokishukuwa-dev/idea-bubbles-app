@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>アイデアの泡</title>
+<meta name="description" content="思いついたことを泡として漂わせておくアプリ。消えるはずの思いつきを、消さずに置いておく。" />
+<meta name="theme-color" content="#0a0e1a" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="アイデアの泡" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<link rel="apple-touch-icon" href="apple-touch-icon.png" />
+<link rel="icon" href="icon-192.png" />
+<link rel="manifest" href="manifest.json" />
+<style>
+  :root{
+    --bg1:#1b2744; --bg2:#0a0e1a; --ink:#eaf3ff; --muted:#8fa4c6;
+    --line:rgba(180,220,255,.25); --accent:#f0c674; --accent-ink:#3a2a08;
+    --sheet-bg:#111a30; --sheet-line:rgba(180,220,255,.22);
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+  html,body{height:100%; margin:0}
+  body{
+    background:radial-gradient(120% 90% at 50% -8%, var(--bg1), var(--bg2) 72%);
+    color:var(--ink); font-family:-apple-system,"Hiragino Sans","Yu Gothic UI","Noto Sans JP",sans-serif;
+    overscroll-behavior:none; -webkit-user-select:none; user-select:none;
+  }
+  #app{position:fixed; inset:0; display:flex; flex-direction:column; overflow:hidden}
+
+  .topbar{padding:calc(14px + env(safe-area-inset-top,0px)) 16px 10px; display:flex; flex-direction:column;
+    align-items:center; gap:12px; flex:0 0 auto; z-index:10}
+  .app-title{font-size:.86rem; font-weight:800; letter-spacing:.02em; opacity:.92}
+  .tabs{display:flex; gap:4px; padding:4px; border:1px solid var(--line); border-radius:999px; background:rgba(255,255,255,.05)}
+  .tabs button{border:0; background:transparent; color:var(--muted); padding:8px 18px; border-radius:999px;
+    font-size:.78rem; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:5px}
+  .tabs button.active{background:rgba(255,255,255,.14); color:var(--ink)}
+
+  .views{position:relative; flex:1 1 auto; min-height:0}
+  .view{position:absolute; inset:0}
+  .view[hidden]{display:none}
+
+  .field{position:absolute; inset:0}
+  .star{position:absolute; border-radius:50%; background:rgba(255,255,255,.7); pointer-events:none}
+
+  .bubble{position:absolute; top:0; left:0; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    text-align:center; padding:6px; cursor:grab; user-select:none; will-change:transform; touch-action:none;
+    background:radial-gradient(circle at 32% 28%, rgba(255,255,255,.5), rgba(255,255,255,.08) 55%, rgba(139,211,255,.16));
+    border:1px solid var(--line); box-shadow:0 0 16px rgba(139,211,255,.22), inset 0 0 12px rgba(255,255,255,.12);
+    transition:transform 220ms cubic-bezier(.34,1.56,.64,1);}
+  .bubble:active{cursor:grabbing}
+  .bubble .txt{font-size:.72rem; font-weight:700; line-height:1.35; pointer-events:none}
+
+  .list{position:absolute; inset:0; overflow-y:auto; padding:6px 16px calc(16px + env(safe-area-inset-bottom,0px))}
+  .list-row{display:flex; align-items:center; gap:12px; padding:14px 6px; border-bottom:1px solid var(--line); cursor:pointer}
+  .list-row .dot{width:14px; height:14px; border-radius:50%; flex:0 0 auto; box-shadow:0 0 8px rgba(139,211,255,.3)}
+  .list-row .body{flex:1; min-width:0}
+  .list-row .label{font-size:.9rem; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .list-row time{display:block; margin-top:2px; font-size:.74rem; color:var(--muted)}
+  .list-row .chev{color:var(--muted); font-size:1rem}
+  .list-empty{padding:60px 24px; text-align:center; color:var(--muted); font-size:.86rem}
+
+  .capturebar{flex:0 0 auto; z-index:20; padding:10px 12px calc(14px + env(safe-area-inset-bottom,0px));
+    background:rgba(10,14,26,.55); backdrop-filter:blur(10px); border-top:1px solid var(--line);
+    display:flex; gap:8px; align-items:center}
+  .capturebar input{flex:1; border:1px solid var(--line); border-radius:999px; padding:12px 16px; font-size:.9rem;
+    font-family:inherit; background:rgba(255,255,255,.08); color:var(--ink)}
+  .capturebar input::placeholder{color:var(--muted)}
+  .sendbtn{width:42px; height:42px; border-radius:50%; border:none; background:var(--accent); color:var(--accent-ink);
+    font-size:1.1rem; font-weight:800; cursor:pointer; flex:0 0 auto}
+
+  .sheet-backdrop{position:fixed; inset:0; z-index:50; background:rgba(0,0,0,.45); opacity:0; pointer-events:none;
+    transition:opacity 200ms ease; display:flex; align-items:flex-end}
+  .sheet-backdrop.open{opacity:1; pointer-events:auto}
+  .sheet{width:100%; max-height:78%; overflow-y:auto; padding:18px 18px calc(20px + env(safe-area-inset-bottom,0px));
+    background:var(--sheet-bg); color:var(--ink); border-radius:20px 20px 0 0; border-top:1px solid var(--sheet-line);
+    transform:translateY(100%); transition:transform 240ms cubic-bezier(.22,1,.36,1)}
+  .sheet-backdrop.open .sheet{transform:translateY(0)}
+  .sheet-grip{width:36px; height:4px; border-radius:3px; background:var(--muted); margin:0 auto 14px; opacity:.5}
+  .sheet time{display:block; font-size:.74rem; color:var(--muted); font-weight:700; margin-bottom:10px}
+  .cat-row{display:flex; flex-wrap:wrap; gap:6px; margin-bottom:14px}
+  .cat-chip{padding:7px 12px; border-radius:999px; border:1px solid var(--sheet-line); font-size:.74rem; font-weight:700;
+    color:var(--ink); cursor:pointer; opacity:.55}
+  .cat-chip.selected{opacity:1; border-color:transparent}
+  .sheet textarea.body{width:100%; min-height:80px; border:1px solid var(--sheet-line); border-radius:10px; padding:11px;
+    font-size:.9rem; font-family:inherit; background:transparent; color:inherit; resize:none; -webkit-user-select:text; user-select:text}
+  .sheet .actions{display:flex; gap:8px; margin-top:14px}
+  .sheet .actions button{flex:1; padding:11px; border-radius:10px; border:1px solid var(--sheet-line); background:transparent;
+    color:inherit; font-size:.82rem; font-weight:700; cursor:pointer}
+  .sheet .actions button.danger{color:#f0897a; border-color:rgba(240,137,122,.4)}
+  .sheet .actions button.primary{background:var(--accent); color:var(--accent-ink); border-color:transparent}
+  input, textarea{-webkit-user-select:text; user-select:text}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <div class="topbar">
+    <div class="app-title">🫧 アイデアの泡</div>
+    <div class="tabs">
+      <button id="tabBubbleBtn" class="active">🫧 泡</button>
+      <button id="tabListBtn">📋 リスト</button>
+    </div>
+  </div>
+
+  <div class="views">
+    <div class="view" id="viewBubble">
+      <div class="field" id="field"></div>
+    </div>
+    <div class="view" id="viewList" hidden>
+      <div class="list" id="listEl"></div>
+    </div>
+  </div>
+
+  <div class="capturebar">
+    <input id="captureInput" placeholder="今なに思いついた？" />
+    <button class="sendbtn" id="captureSend">→</button>
+  </div>
+</div>
+
+<div class="sheet-backdrop" id="sheetBackdrop">
+  <div class="sheet">
+    <div class="sheet-grip"></div>
+    <time id="sheetTime"></time>
+    <div class="cat-row" id="sheetCats"></div>
+    <textarea class="body" id="sheetBody"></textarea>
+    <div class="actions">
+      <button class="edit" id="sheetEdit">✏️ 編集</button>
+      <button class="danger" id="sheetDel">🗑️ 削除</button>
+      <button class="primary" id="sheetClose">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
