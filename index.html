@@ -20,13 +20,13 @@
     --sheet-bg:#111a30; --sheet-line:rgba(180,220,255,.22);
   }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
-  html,body{height:100%; margin:0}
+  html,body{height:100%; margin:0; overscroll-behavior:none; background-color:var(--bg2)}
   body{
     background:radial-gradient(120% 90% at 50% -8%, var(--bg1), var(--bg2) 72%);
     color:var(--ink); font-family:-apple-system,"Hiragino Sans","Yu Gothic UI","Noto Sans JP",sans-serif;
-    overscroll-behavior:none; -webkit-user-select:none; user-select:none;
+    -webkit-user-select:none; user-select:none;
   }
-  #app{position:fixed; inset:0; display:flex; flex-direction:column; overflow:hidden}
+  #app{position:fixed; inset:0; height:100dvh; display:flex; flex-direction:column; overflow:hidden}
 
   .topbar{padding:calc(14px + env(safe-area-inset-top,0px)) 16px 10px; display:flex; flex-direction:column;
     align-items:center; gap:12px; flex:0 0 auto; z-index:10}

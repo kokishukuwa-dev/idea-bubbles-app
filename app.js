@@ -187,7 +187,9 @@
   // ---- capture ----
   const captureInput = document.getElementById("captureInput");
   document.getElementById("captureSend").addEventListener("click", doCapture);
-  captureInput.addEventListener("keydown", e => { if (e.key === "Enter") doCapture(); });
+  captureInput.addEventListener("keydown", e => {
+    if (e.key === "Enter" && !e.isComposing && e.keyCode !== 229) doCapture();
+  });
   function doCapture() {
     const text = captureInput.value.trim();
     if (!text) return;
