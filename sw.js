@@ -28,6 +28,8 @@ self.addEventListener("activate", event => {
 // 画面本体はキャッシュ優先(オフラインでも開ける)。それ以外はネット優先でフォールバックにキャッシュを使う。
 self.addEventListener("fetch", event => {
   if (event.request.method !== "GET") return;
+  // 同じgithub.io上の他アプリや外部のリクエストはキャッシュに入れず、このアプリの範囲だけ扱う
+  if (!event.request.url.startsWith(self.registration.scope)) return;
   event.respondWith(
     caches.match(event.request).then(cached => {
       const network = fetch(event.request)
