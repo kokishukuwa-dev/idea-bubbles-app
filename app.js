@@ -131,6 +131,8 @@
 
   function tick() {
     const w = field.clientWidth, h = field.clientHeight;
+    // リストタブを表示中は泡の画面の大きさが0になるので、位置を崩さないよう動かさない
+    if (!w || !h) { requestAnimationFrame(tick); return; }
     for (const b of state) {
       if (b.dragging || b.removed) continue;
       b.vx += rand(-0.08, 0.08);
@@ -269,6 +271,18 @@
     viewList.hidden = false; viewBubble.hidden = true;
     renderList();
   });
+
+  // 右クリック（長押し）で起動時のタブと並び順、ドラッグで並び替え
+  {
+    const TAB_KEY = "idea-bubbles:tabs";
+    const tabs = { bubble: tabBubbleBtn, list: tabListBtn };
+    const ids = Object.keys(tabs);
+    const box = tabBubbleBtn.parentElement;
+    const arrange = () => TabPrefs.arrange(TAB_KEY, box, tabs);
+    ids.forEach(id => TabPrefs.bind(TAB_KEY, tabs[id], id, ids, arrange));
+    arrange();
+    if (TabPrefs.getDefault(TAB_KEY, ids, "bubble") === "list") tabListBtn.click();
+  }
 
   renderList();
 

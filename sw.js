@@ -1,8 +1,9 @@
-const CACHE_NAME = "idea-bubbles-v3";
+const CACHE_NAME = "idea-bubbles-v4";
 const CORE_FILES = [
   "./",
   "./index.html",
   "./app.js",
+  "./tab-prefs.js",
   "./manifest.json",
   "./icon-192.png",
   "./icon-512.png",
